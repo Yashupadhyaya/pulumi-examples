@@ -9,8 +9,8 @@ import * as pulumi from "@pulumi/pulumi";
 const awsConfig = new pulumi.Config("aws");
 const awsRegion = awsConfig.get("region");
 
-const projectConfig = new pulumi.Config();
-const numberNodes = projectConfig.getNumber("numberNodes") || 2;
+//const projectConfig = new pulumi.Config();
+// const numberNodes = projectConfig.getNumber("numberNodes") || 2;
 
 //Set IAM roles
 // const ssmRole = new aws.iam.Role("ssmRole", {
@@ -29,22 +29,22 @@ const numberNodes = projectConfig.getNumber("numberNodes") || 2;
 //   role: ssmRole,
 // });
 
-const executionRole = new aws.iam.Role("taskExecutionRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.EcsTasksPrincipal,
-  ),
-});
-// "arn:aws:iam::872232775305:role/ecsTaskExecutionRole"
-const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
-  role: executionRole,
-  policyArn: "arn:aws:iam::872232775305:role/ecsTaskExecutionRole",
-});
+// const executionRole = new aws.iam.Role("taskExecutionRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.EcsTasksPrincipal,
+//   ),
+// });
+// // "arn:aws:iam::872232775305:role/ecsTaskExecutionRole"
+// // const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
+// //   role: executionRole,
+// //   policyArn: "arn:aws:iam::872232775305:role/ecsTaskExecutionRole",
+// // });
 
-const taskRole = new aws.iam.Role("taskRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.EcsTasksPrincipal,
-  ),
-});
+// const taskRole = new aws.iam.Role("taskRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.EcsTasksPrincipal,
+//   ),
+// });
 
 // const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
 //   role: taskRole.id,
@@ -88,6 +88,7 @@ const taskRole = new aws.iam.Role("taskRole", {
 
 // Create cluster and export cluster name
 const cluster = new aws.ecs.Cluster("cluster");
+
 
 export const clusterName = cluster.name;
 
