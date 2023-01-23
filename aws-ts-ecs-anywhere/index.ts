@@ -13,21 +13,21 @@ const projectConfig = new pulumi.Config();
 const numberNodes = projectConfig.getNumber("numberNodes") || 2;
 
 //Set IAM roles
-const ssmRole = new aws.iam.Role("ssmRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.SsmPrincipal,
-  ),
-});
+// const ssmRole = new aws.iam.Role("ssmRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.SsmPrincipal,
+//   ),
+// });
 
-const ssmCoreRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ssmrole-ssminstancecore", {
-  policyArn: aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore,
-  role: ssmRole,
-});
+// const ssmCoreRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ssmrole-ssminstancecore", {
+//   policyArn: aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore,
+//   role: ssmRole,
+// });
 
-const ssmRoleEc2ContainerAttachment = new aws.iam.RolePolicyAttachment("rpa-ssmrole-ec2containerservice", {
-  policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerServiceforEC2Role,
-  role: ssmRole,
-});
+// const ssmRoleEc2ContainerAttachment = new aws.iam.RolePolicyAttachment("rpa-ssmrole-ec2containerservice", {
+//   policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerServiceforEC2Role,
+//   role: ssmRole,
+// });
 
 const executionRole = new aws.iam.Role("taskExecutionRole", {
   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
@@ -81,10 +81,10 @@ const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
 });
 
 //Set up SSM
-const ssmActivation = new aws.ssm.Activation("ecsanywhere-ssmactivation", {
-  iamRole: ssmRole.name,
-  registrationLimit: numberNodes,
-});
+// const ssmActivation = new aws.ssm.Activation("ecsanywhere-ssmactivation", {
+//   iamRole: ssmRole.name,
+//   registrationLimit: numberNodes,
+// });
 
 // Create cluster and export cluster name
 const cluster = new aws.ecs.Cluster("cluster");
