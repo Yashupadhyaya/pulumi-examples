@@ -34,10 +34,10 @@ const executionRole = new aws.iam.Role("taskExecutionRole", {
     aws.iam.Principals.EcsTasksPrincipal,
   ),
 });
-
+// "arn:aws:iam::872232775305:role/ecsTaskExecutionRole"
 const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
   role: executionRole,
-  policyArn: aws.iam.ManagedPolicy.AmazonECSTaskExecutionRolePolicy,
+  policyArn: "arn:aws:iam::872232775305:role/ecsTaskExecutionRole",
 });
 
 const taskRole = new aws.iam.Role("taskRole", {
@@ -46,39 +46,39 @@ const taskRole = new aws.iam.Role("taskRole", {
   ),
 });
 
-const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
-  role: taskRole.id,
-  policy: {
-    Version: "2012-10-17",
-    Statement: [
-      {
-        Effect: "Allow",
-        Action: [
-          "ssmmessages:CreateControlChannel",
-          "ssmmessages:CreateDataChannel",
-          "ssmmessages:OpenControlChannel",
-          "ssmmessages:OpenDataChannel",
-        ],
-        Resource: "*",
-      },
-      {
-        Effect: "Allow",
-        Action: ["logs:DescribeLogGroups"],
-        Resource: "*",
-      },
-      {
-        Effect: "Allow",
-        Action: [
-          "logs:CreateLogStream",
-          "logs:CreateLogGroup",
-          "logs:DescribeLogStreams",
-          "logs:PutLogEvents",
-        ],
-        Resource: "*",
-      },
-    ],
-  },
-});
+// const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
+//   role: taskRole.id,
+//   policy: {
+//     Version: "2012-10-17",
+//     Statement: [
+//       {
+//         Effect: "Allow",
+//         Action: [
+//           "ssmmessages:CreateControlChannel",
+//           "ssmmessages:CreateDataChannel",
+//           "ssmmessages:OpenControlChannel",
+//           "ssmmessages:OpenDataChannel",
+//         ],
+//         Resource: "*",
+//       },
+//       {
+//         Effect: "Allow",
+//         Action: ["logs:DescribeLogGroups"],
+//         Resource: "*",
+//       },
+//       {
+//         Effect: "Allow",
+//         Action: [
+//           "logs:CreateLogStream",
+//           "logs:CreateLogGroup",
+//           "logs:DescribeLogStreams",
+//           "logs:PutLogEvents",
+//         ],
+//         Resource: "*",
+//       },
+//     ],
+//   },
+// });
 
 // Set up SSM
 // const ssmActivation = new aws.ssm.Activation("ecsanywhere-ssmactivation", {
