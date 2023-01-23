@@ -29,56 +29,56 @@ const numberNodes = projectConfig.getNumber("numberNodes") || 2;
 //   role: ssmRole,
 // });
 
-const executionRole = new aws.iam.Role("taskExecutionRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.EcsTasksPrincipal,
-  ),
-});
+// const executionRole = new aws.iam.Role("taskExecutionRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.EcsTasksPrincipal,
+//   ),
+// });
 
-const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
-  role: executionRole,
-  policyArn: aws.iam.ManagedPolicy.AmazonECSTaskExecutionRolePolicy,
-});
+// const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
+//   role: executionRole,
+//   policyArn: aws.iam.ManagedPolicy.AmazonECSTaskExecutionRolePolicy,
+// });
 
-const taskRole = new aws.iam.Role("taskRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.EcsTasksPrincipal,
-  ),
-});
+// const taskRole = new aws.iam.Role("taskRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.EcsTasksPrincipal,
+//   ),
+// });
 
-const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
-  role: taskRole.id,
-  policy: {
-    Version: "2012-10-17",
-    Statement: [
-      {
-        Effect: "Allow",
-        Action: [
-          "ssmmessages:CreateControlChannel",
-          "ssmmessages:CreateDataChannel",
-          "ssmmessages:OpenControlChannel",
-          "ssmmessages:OpenDataChannel",
-        ],
-        Resource: "*",
-      },
-      {
-        Effect: "Allow",
-        Action: ["logs:DescribeLogGroups"],
-        Resource: "*",
-      },
-      {
-        Effect: "Allow",
-        Action: [
-          "logs:CreateLogStream",
-          "logs:CreateLogGroup",
-          "logs:DescribeLogStreams",
-          "logs:PutLogEvents",
-        ],
-        Resource: "*",
-      },
-    ],
-  },
-});
+// const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
+//   role: taskRole.id,
+//   policy: {
+//     Version: "2012-10-17",
+//     Statement: [
+//       {
+//         Effect: "Allow",
+//         Action: [
+//           "ssmmessages:CreateControlChannel",
+//           "ssmmessages:CreateDataChannel",
+//           "ssmmessages:OpenControlChannel",
+//           "ssmmessages:OpenDataChannel",
+//         ],
+//         Resource: "*",
+//       },
+//       {
+//         Effect: "Allow",
+//         Action: ["logs:DescribeLogGroups"],
+//         Resource: "*",
+//       },
+//       {
+//         Effect: "Allow",
+//         Action: [
+//           "logs:CreateLogStream",
+//           "logs:CreateLogGroup",
+//           "logs:DescribeLogStreams",
+//           "logs:PutLogEvents",
+//         ],
+//         Resource: "*",
+//       },
+//     ],
+//   },
+// });
 
 //Set up SSM
 // const ssmActivation = new aws.ssm.Activation("ecsanywhere-ssmactivation", {
@@ -91,7 +91,7 @@ const cluster = new aws.ecs.Cluster("cluster");
 
 export const clusterName = cluster.name;
 
-const logGroup = new aws.cloudwatch.LogGroup("logGroup");
+// const logGroup = new aws.cloudwatch.LogGroup("logGroup");
 
 // UserData for Droplets
 // const userData = pulumi
