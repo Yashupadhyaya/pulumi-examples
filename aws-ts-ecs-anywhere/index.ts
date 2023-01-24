@@ -92,6 +92,7 @@ const cluster = new aws.ecs.Cluster("cluster");
 
 export const clusterName = cluster.name;
 export const arn = cluster.arn;
+export const ID = cluster.id;
 
 // const logGroup = new aws.cloudwatch.LogGroup("logGroup");
 
