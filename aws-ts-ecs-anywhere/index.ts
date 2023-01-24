@@ -1,13 +1,12 @@
 // Copyright 2016-2019, Pulumi Corporation.  All rights reserved.
 
+import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
-import * as digitalocean from "@pulumi/digitalocean";
-import * as pulumi from "@pulumi/pulumi";
 
 // Get config
-const awsConfig = new pulumi.Config("aws");
-const awsRegion = awsConfig.get("region");
+// const awsConfig = new pulumi.Config("aws");
+// const awsRegion = awsConfig.get("region");
 
 //const projectConfig = new pulumi.Config();
 // const numberNodes = projectConfig.getNumber("numberNodes") || 2;
@@ -87,12 +86,26 @@ const awsRegion = awsConfig.get("region");
 // });
 
 // Create cluster and export cluster name
-const cluster = new aws.ecs.Cluster("cluster");
-
-
-export const clusterName = cluster.name;
-export const arn = cluster.arn;
-export const ID = cluster.id;
+//const cluster = new aws.ecs.Cluster("cluster");
+let cluster = new aws.ecs.Cluster("cluster", {});
+const lb = new awsx.lb.ApplicationLoadBalancer("lb", {});
+const service = new awsx.ecs.FargateService("service", {
+    assignPublicIp: true,
+    desiredCount: 2,
+    taskDefinitionArgs: {
+        container: {
+            image: "nginx:latest",
+            cpu: 512,
+            memory: 128,
+            essential: true,
+            portMappings: [{
+              "containerPort": 8080,
+              "hostPort": 8080
+            }],
+          }
+    },
+});
+export const url = lb.loadBalancer.dnsName;
 
 // const logGroup = new aws.cloudwatch.LogGroup("logGroup");
 
