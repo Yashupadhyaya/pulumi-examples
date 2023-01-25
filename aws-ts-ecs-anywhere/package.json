@@ -8,5 +8,13 @@
     "@pulumi/awsx": "^0.30.0",
     "@pulumi/digitalocean": "^4.1.0",
     "@pulumi/pulumi": "^3.0.0"
-  }
+  },
+  "description": "[![Deploy](https://get.pulumi.com/new/button.svg)](https://app.pulumi.com/new?template=https://github.com/pulumi/examples/blob/master/aws-ts-ecs-anywhere/README.md)",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
 }
