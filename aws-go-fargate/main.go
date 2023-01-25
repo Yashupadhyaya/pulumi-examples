@@ -113,7 +113,7 @@ func main() {
 			return err
 		}
 
-		repo, err := ecr.NewRepository(ctx, "foo", &ecr.RepositoryArgs{})
+		repo, err := ecr.NewRepository(ctx, "eaas-test", &ecr.RepositoryArgs{})
 		if err != nil {
 			return err
 		}
