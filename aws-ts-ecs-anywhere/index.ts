@@ -3,6 +3,8 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
+import { ec2 } from "@pulumi/aws/types/enums"; 
+import { LoadBalancer } from "@pulumi/aws/alb";
 
 // Get config
 // const awsConfig = new pulumi.Config("aws");
@@ -28,23 +30,45 @@ import * as awsx from "@pulumi/awsx";
 //   role: ssmRole,
 // });
 
-// const executionRole = new aws.iam.Role("taskExecutionRole", {
-//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-//     aws.iam.Principals.EcsTasksPrincipal,
-//   ),
-// });
+const executionRole = new aws.iam.Role("taskExecutionRole", {
+  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+    aws.iam.Principals.EcsTasksPrincipal,
+  ),
+});
 // // "arn:aws:iam::872232775305:role/ecsTaskExecutionRole"
 // // const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
 // //   role: executionRole,
 // //   policyArn: "arn:aws:iam::872232775305:role/ecsTaskExecutionRole",
 // // });
 
-// const taskRole = new aws.iam.Role("taskRole", {
-//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-//     aws.iam.Principals.EcsTasksPrincipal,
-//   ),
-// });
-
+const taskRole = new aws.iam.Role("taskRole", {
+  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+    aws.iam.Principals.EcsTasksPrincipal,
+  ),
+});
+const cluster = new awsx.ecs.Cluster("cluster");
+const lb = new awsx.elasticloadbalancingv2.ApplicationLoadBalancer("net-lb",{
+  external: true,
+  securityGroups:cluster.securityGroups
+})
+const web = lb.createListener("web",{
+  port:80,
+  external:true
+})
+const img = awsx.ecs.Image.fromPath("app-img","./app")
+const appServer = new awsx.ecs.FargateService("app-srv",{
+  cluster:cluster,
+  taskDefinitionArgs:{
+    container:{
+      image:img,
+      cpu:128,
+      memory:50,
+      portMappings:[web]
+    }
+  },
+  desiredCount:1,
+})
+export const url = web.endpoint.hostname
 // const taskRolePolicy = new aws.iam.RolePolicy("taskRolePolicy", {
 //   role: taskRole.id,
 //   policy: {
@@ -87,25 +111,133 @@ import * as awsx from "@pulumi/awsx";
 
 // Create cluster and export cluster name
 //const cluster = new aws.ecs.Cluster("cluster");
-let cluster = new aws.ecs.Cluster("cluster", {});
-const lb = new awsx.lb.ApplicationLoadBalancer("lb", {});
-const service = new awsx.ecs.FargateService("service", {
-    assignPublicIp: true,
-    desiredCount: 2,
-    taskDefinitionArgs: {
-        container: {
-            image: "nginx:latest",
-            cpu: 512,
-            memory: 128,
-            essential: true,
-            portMappings: [{
-              "containerPort": 8080,
-              "hostPort": 8080
-            }],
-          }
-    },
-});
-export const url = lb.loadBalancer.dnsName;
+
+// const vpc = new awsx.ec2.Vpc("vpc", {});
+// const securityGroup = new aws.ec2.SecurityGroup("securityGroup", {
+//     vpcId: vpc.id,
+//     egress: [{
+//         fromPort: 0,
+//         toPort: 0,
+//         protocol: "-1",
+//         cidrBlocks: ["0.0.0.0/0"],
+//         ipv6CidrBlocks: ["::/0"],
+//     }],
+// });
+
+// const vpc = new awsx.ec2.Vpc("vpc", {
+  
+  
+// });
+// const myCluster = new aws.ecs.Cluster("my-cluster");
+// const aws_ecs_task_definition = new aws.ecs.TaskDefinition("hello_svc", {
+//   family:"hello-service",
+//   executionRoleArn:"arn:aws:iam::872232775305:role/ecsTaskExecutionRole",
+//   requiresCompatibilities :["FARGATE"],
+//   networkMode: "awsvpc",
+//   taskRoleArn:taskRole.arn,
+//   containerDefinitions: JSON.stringify([
+//     {
+//       name:"hello-web",
+//       image:"upadhyayyash/hello:web",
+//       cpu: 500,
+//       memory:512,
+//       essential:true,
+//       portMappings: [
+//         {
+//           containerPort: 80
+//         },
+//       ],
+//     },
+//     {
+//       name:"hello-v2",
+//       image:"mgdevstack/hello:web-v0.0.2",
+//       cpu: 500,
+//       memory:512,
+//       essential:true,
+//       portMappings: [
+//         {
+//           containerPort: 80
+//         },
+//       ]
+//     }
+//   ])
+// });
+//const myservice = new awsx.ecs.FargateService("myservice", {
+  //     cluster:myCluster.arn,
+  //     networkConfiguration: {
+  //         subnets: vpc.privateSubnetIds,
+  //         securityGroups: [securityGroup.id],
+  //     },
+  //     desiredCount: 2,
+  //     taskDefinitionArgs: {
+  //         container: {
+  //             image: "nginx:latest",
+  //             cpu: 512,
+  //             memory: 128,
+  //             essential: true,
+  //         },
+  //     },
+  // });
+// const load_balancer = new awsx.lb.ApplicationLoadBalancer("load_balancer",{
+//   co
+// })
+// const vpcid = vpc.id as unknown
+// const subnet = aws.ec2.getSubnetIds({
+//   vpcId:vpcid as string
+// })
+// const service = new aws.ecs.Service("service",{
+//   desiredCount: 1,
+//   cluster:myCluster.arn,
+//   taskDefinition:aws_ecs_task_definition.arn,
+//   launchType:"FARGATE",
+//   networkConfiguration:{
+//     subnets:<>,
+//     assignPublicIp:true
+
+//   },
+//   load_balancer:{
+//     target
+//   }
+
+
+
+
+// });
+// const taskDefinition = pulumi
+//   .all([image, logGroup.name, logGroup.namePrefix])
+//   .apply(
+//     ([img, logGroupName, nameprefix]) =>
+//       new aws.ecs.TaskDefinition("taskdefinition", {
+//         family: "ecs-anywhere",
+//         requiresCompatibilities: ["EXTERNAL"],
+//         taskRoleArn: taskRole.arn,
+//         executionRoleArn: executionRole.arn,
+//         containerDefinitions: JSON.stringify([
+//           {
+//             name: "app",
+//             image: img,
+//             cpu: 256,
+//             memory: 256,
+//             essential: true,
+//             portMappings: [
+//               {
+//                 containerPort: 80,
+//                 hostPort: 80,
+//               },
+//             ],
+//             logConfiguration: {
+//               logDriver: "awslogs",
+//               options: {
+//                 "awslogs-group": logGroupName,
+//                 "awslogs-region": awsRegion,
+//                 "awslogs-stream-prefixs": nameprefix,
+//               },
+//             },
+//           },
+//         ]),
+//       }),
+//   );
+// 
 
 // const logGroup = new aws.cloudwatch.LogGroup("logGroup");
 
@@ -165,7 +297,7 @@ export const url = lb.loadBalancer.dnsName;
 
 // const image = repo.buildAndPushImage("./app");
 
-// // Set up task definition
+// Set up task definition
 // const taskDefinition = pulumi
 //   .all([image, logGroup.name, logGroup.namePrefix])
 //   .apply(
