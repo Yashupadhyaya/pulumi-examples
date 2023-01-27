@@ -30,22 +30,22 @@ import { LoadBalancer } from "@pulumi/aws/alb";
 //   role: ssmRole,
 // });
 
-const executionRole = new aws.iam.Role("taskExecutionRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.EcsTasksPrincipal,
-  ),
-});
+// const executionRole = new aws.iam.Role("taskExecutionRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.EcsTasksPrincipal,
+//   ),
+// });
 // // "arn:aws:iam::872232775305:role/ecsTaskExecutionRole"
 // // const ecsTaskExecutionRoleAttachment = new aws.iam.RolePolicyAttachment("rpa-ecsanywhere-ecstaskexecution", {
 // //   role: executionRole,
 // //   policyArn: "arn:aws:iam::872232775305:role/ecsTaskExecutionRole",
 // // });
 
-const taskRole = new aws.iam.Role("taskRole", {
-  assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
-    aws.iam.Principals.EcsTasksPrincipal,
-  ),
-});
+// const taskRole = new aws.iam.Role("taskRole", {
+//   assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal(
+//     aws.iam.Principals.EcsTasksPrincipal,
+//   ),
+// });
 const cluster = new awsx.ecs.Cluster("cluster");
 const lb = new awsx.elasticloadbalancingv2.ApplicationLoadBalancer("net-lb",{
   external: true,
