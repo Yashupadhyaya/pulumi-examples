@@ -164,7 +164,7 @@ func main() {
 		// Spin up a load balanced service running NGINX.
 		appTask, err := ecs.NewTaskDefinition(ctx, "hello-web", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String("fargate-task-definition"),
-			Cpu:                     pulumi.String("500"),
+			Cpu:                     pulumi.String("256"),
 			Memory:                  pulumi.String("512"),
 			NetworkMode:             pulumi.String("awsvpc"),
 			RequiresCompatibilities: pulumi.StringArray{pulumi.String("FARGATE")},
