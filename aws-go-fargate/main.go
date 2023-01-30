@@ -147,7 +147,7 @@ func main() {
 		containerDef := func() (string, error) {
 			fmtstr := `[{
 				"name": "my-app",
-				"image":"yashupadhyay/hello:web",
+				"image":"zbio.voter",
 				"portMappings": [{
 					"containerPort": 80,
 					"hostPort": 80,
