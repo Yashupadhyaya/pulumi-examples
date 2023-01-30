@@ -25,8 +25,8 @@ const taskDefinition = new awsnative.ecs.TaskDefinition("app-task", {
     requiresCompatibilities: ["FARGATE"],
     executionRoleArn: classic.roleArn,
     containerDefinitions: [{
-        name: "my-app",
-        image: "nginx",
+        name: "zbio",
+        image: "ballot",
         portMappings: [{
             containerPort: 80,
             hostPort: 80,

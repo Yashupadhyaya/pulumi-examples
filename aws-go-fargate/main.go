@@ -1,16 +1,11 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
-	"strings"
 
 	"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/ec2"
-	"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/ecr"
 	"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/ecs"
 	elb "github.com/pulumi/pulumi-aws/sdk/v5/go/aws/elasticloadbalancingv2"
-	"github.com/pulumi/pulumi-aws/sdk/v5/go/aws/iam"
-	"github.com/pulumi/pulumi-docker/sdk/v3/go/docker"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -58,34 +53,37 @@ func main() {
 		}
 
 		// Create an IAM role that can be used by our service's task.
-		taskExecRole, err := iam.NewRole(ctx, "task-exec-role", &iam.RoleArgs{
-			AssumeRolePolicy: pulumi.String(`{
-    "Version": "2008-10-17",
-    "Statement": [{
-        "Sid": "",
-        "Effect": "Allow",
-        "Principal": {
-            "Service": "ecs-tasks.amazonaws.com"
-        },
-        "Action": "sts:AssumeRole"
-    }]
-}`),
-		})
-		if err != nil {
-			return err
-		}
-		_, err = iam.NewRolePolicyAttachment(ctx, "task-exec-policy", &iam.RolePolicyAttachmentArgs{
-			Role:      taskExecRole.Name,
-			PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"),
-		})
-		if err != nil {
-			return err
-		}
+		// 		taskExecRole, err := iam.NewRole(ctx, "task-exec-role", &iam.RoleArgs{
+		// 			AssumeRolePolicy: pulumi.String(`{
+		//     "Version": "2008-10-17",
+		//     "Statement": [{
+		//         "Sid": "",
+		//         "Effect": "Allow",
+		//         "Principal": {
+		//             "Service": "ecs-tasks.amazonaws.com"
+		//         },
+		//         "Action": "sts:AssumeRole"
+		//     }]
+		// }`),
+		// 		})
+		// 		if err != nil {
+		// 			return err
+		// 		}
+		// 		_, err = iam.NewRolePolicyAttachment(ctx, "task-exec-policy", &iam.RolePolicyAttachmentArgs{
+		// 			Role:      taskExecRole.Name,
+		// 			PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"),
+		// 		})
+		// 		if err != nil {
+		// 			return err
+		// 		}
 
 		// Create a load balancer to listen for HTTP traffic on port 80.
 		webLb, err := elb.NewLoadBalancer(ctx, "web-lb", &elb.LoadBalancerArgs{
-			Subnets:        toPulumiStringArray(subnet.Ids),
-			SecurityGroups: pulumi.StringArray{webSg.ID().ToStringOutput()},
+			Internal:                 pulumi.Bool(false),
+			LoadBalancerType:         pulumi.String("application"),
+			Subnets:                  toPulumiStringArray(subnet.Ids),
+			SecurityGroups:           pulumi.StringArray{webSg.ID().ToStringOutput()},
+			EnableDeletionProtection: pulumi.Bool(false),
 		})
 		if err != nil {
 			return err
@@ -102,6 +100,7 @@ func main() {
 		webListener, err := elb.NewListener(ctx, "web-listener", &elb.ListenerArgs{
 			LoadBalancerArn: webLb.Arn,
 			Port:            pulumi.Int(80),
+			Protocol:        pulumi.String("HTTP"),
 			DefaultActions: elb.ListenerDefaultActionArray{
 				elb.ListenerDefaultActionArgs{
 					Type:           pulumi.String("forward"),
@@ -113,70 +112,71 @@ func main() {
 			return err
 		}
 
-		repo, err := ecr.NewRepository(ctx, "foo", &ecr.RepositoryArgs{})
-		if err != nil {
-			return err
-		}
+		// repo, err := ecr.NewRepository(ctx, "eaas-test", &ecr.RepositoryArgs{})
+		// if err != nil {
+		// 	return err
+		// }
 
-		repoCreds := repo.RegistryId.ApplyT(func(rid string) ([]string, error) {
-			creds, err := ecr.GetCredentials(ctx, &ecr.GetCredentialsArgs{
-				RegistryId: rid,
-			})
-			if err != nil {
-				return nil, err
-			}
-			data, err := base64.StdEncoding.DecodeString(creds.AuthorizationToken)
-			if err != nil {
-				fmt.Println("error:", err)
-				return nil, err
-			}
+		// repoCreds := repo.RegistryId.ApplyT(func(rid string) ([]string, error) {
+		// 	creds, err := ecr.GetCredentials(ctx, &ecr.GetCredentialsArgs{
+		// 		RegistryId: rid,
+		// 	})
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// 	data, err := base64.StdEncoding.DecodeString(creds.AuthorizationToken)
+		// 	if err != nil {
+		// 		fmt.Println("error:", err)
+		// 		return nil, err
+		// 	}
 
-			return strings.Split(string(data), ":"), nil
-		}).(pulumi.StringArrayOutput)
-		repoUser := repoCreds.Index(pulumi.Int(0))
-		repoPass := repoCreds.Index(pulumi.Int(1))
+		// 	return strings.Split(string(data), ":"), nil
+		// }).(pulumi.StringArrayOutput)
+		// repoUser := repoCreds.Index(pulumi.Int(0))
+		// repoPass := repoCreds.Index(pulumi.Int(1))
 
-		image, err := docker.NewImage(ctx, "my-image", &docker.ImageArgs{
-			Build: docker.DockerBuildArgs{
-				Context: pulumi.String("./app"),
-			},
-			ImageName: repo.RepositoryUrl,
-			Registry: docker.ImageRegistryArgs{
-				Server:   repo.RepositoryUrl,
-				Username: repoUser,
-				Password: repoPass,
-			},
-		})
+		// image, err := docker.NewImage(ctx, "my-image", &docker.ImageArgs{
+		// 	Build: docker.DockerBuildArgs{
+		// 		Context: pulumi.String("./app"),
+		// 	},
+		// 	ImageName: repo.RepositoryUrl,
+		// 	Registry: docker.ImageRegistryArgs{
+		// 		Server:   repo.RepositoryUrl,
+		// 		Username: repoUser,
+		// 		Password: repoPass,
+		// 	},
+		// })
 
-		containerDef := image.ImageName.ApplyT(func(name string) (string, error) {
+		containerDef := func() (string, error) {
 			fmtstr := `[{
 				"name": "my-app",
-				"image": %q,
+				"image":"zbio/voter:latest",
 				"portMappings": [{
 					"containerPort": 80,
 					"hostPort": 80,
 					"protocol": "tcp"
 				}]
 			}]`
-			return fmt.Sprintf(fmtstr, name), nil
-		}).(pulumi.StringOutput)
+			return fmt.Sprintf(fmtstr), nil
+		}
+		op, _ := containerDef()
 
 		// Spin up a load balanced service running NGINX.
-		appTask, err := ecs.NewTaskDefinition(ctx, "app-task", &ecs.TaskDefinitionArgs{
+		appTask, err := ecs.NewTaskDefinition(ctx, "hello-web", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String("fargate-task-definition"),
 			Cpu:                     pulumi.String("256"),
 			Memory:                  pulumi.String("512"),
 			NetworkMode:             pulumi.String("awsvpc"),
 			RequiresCompatibilities: pulumi.StringArray{pulumi.String("FARGATE")},
-			ExecutionRoleArn:        taskExecRole.Arn,
-			ContainerDefinitions:    containerDef,
+			ExecutionRoleArn:        pulumi.String("arn:aws:iam::872232775305:role/ecsTaskExecutionRole"),
+			ContainerDefinitions:    pulumi.String(op),
 		})
 		if err != nil {
 			return err
 		}
 		_, err = ecs.NewService(ctx, "app-svc", &ecs.ServiceArgs{
 			Cluster:        cluster.Arn,
-			DesiredCount:   pulumi.Int(5),
+			DesiredCount:   pulumi.Int(1),
 			LaunchType:     pulumi.String("FARGATE"),
 			TaskDefinition: appTask.Arn,
 			NetworkConfiguration: &ecs.ServiceNetworkConfigurationArgs{
@@ -187,7 +187,7 @@ func main() {
 			LoadBalancers: ecs.ServiceLoadBalancerArray{
 				ecs.ServiceLoadBalancerArgs{
 					TargetGroupArn: webTg.Arn,
-					ContainerName:  pulumi.String("my-app"),
+					ContainerName:  pulumi.String("hello-web"),
 					ContainerPort:  pulumi.Int(80),
 				},
 			},
