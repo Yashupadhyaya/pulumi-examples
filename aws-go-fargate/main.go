@@ -52,32 +52,6 @@ func main() {
 			return err
 		}
 
-		// Create an IAM role that can be used by our service's task.
-		// 		taskExecRole, err := iam.NewRole(ctx, "task-exec-role", &iam.RoleArgs{
-		// 			AssumeRolePolicy: pulumi.String(`{
-		//     "Version": "2008-10-17",
-		//     "Statement": [{
-		//         "Sid": "",
-		//         "Effect": "Allow",
-		//         "Principal": {
-		//             "Service": "ecs-tasks.amazonaws.com"
-		//         },
-		//         "Action": "sts:AssumeRole"
-		//     }]
-		// }`),
-		// 		})
-		// 		if err != nil {
-		// 			return err
-		// 		}
-		// 		_, err = iam.NewRolePolicyAttachment(ctx, "task-exec-policy", &iam.RolePolicyAttachmentArgs{
-		// 			Role:      taskExecRole.Name,
-		// 			PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"),
-		// 		})
-		// 		if err != nil {
-		// 			return err
-		// 		}
-
-		// Create a load balancer to listen for HTTP traffic on port 80.
 		webLb, err := elb.NewLoadBalancer(ctx, "web-lb", &elb.LoadBalancerArgs{
 			Internal:                 pulumi.Bool(false),
 			LoadBalancerType:         pulumi.String("application"),
@@ -112,45 +86,10 @@ func main() {
 			return err
 		}
 
-		// repo, err := ecr.NewRepository(ctx, "eaas-test", &ecr.RepositoryArgs{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// repoCreds := repo.RegistryId.ApplyT(func(rid string) ([]string, error) {
-		// 	creds, err := ecr.GetCredentials(ctx, &ecr.GetCredentialsArgs{
-		// 		RegistryId: rid,
-		// 	})
-		// 	if err != nil {
-		// 		return nil, err
-		// 	}
-		// 	data, err := base64.StdEncoding.DecodeString(creds.AuthorizationToken)
-		// 	if err != nil {
-		// 		fmt.Println("error:", err)
-		// 		return nil, err
-		// 	}
-
-		// 	return strings.Split(string(data), ":"), nil
-		// }).(pulumi.StringArrayOutput)
-		// repoUser := repoCreds.Index(pulumi.Int(0))
-		// repoPass := repoCreds.Index(pulumi.Int(1))
-
-		// image, err := docker.NewImage(ctx, "my-image", &docker.ImageArgs{
-		// 	Build: docker.DockerBuildArgs{
-		// 		Context: pulumi.String("./app"),
-		// 	},
-		// 	ImageName: repo.RepositoryUrl,
-		// 	Registry: docker.ImageRegistryArgs{
-		// 		Server:   repo.RepositoryUrl,
-		// 		Username: repoUser,
-		// 		Password: repoPass,
-		// 	},
-		// })
-
 		containerDef := func() (string, error) {
 			fmtstr := `[{
 				"name": "my-app",
-				"image":"zbio/voter:latest",
+				"image":"mgdevstack/hello:web",
 				"portMappings": [{
 					"containerPort": 80,
 					"hostPort": 80,
