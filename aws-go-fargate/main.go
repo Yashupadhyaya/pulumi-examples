@@ -53,8 +53,8 @@ func main() {
 		}
 
 		// Create an IAM role that can be used by our service's task.
-		// 		taskExecRole, err := iam.NewRole(ctx, "task-exec-role", &iam.RoleArgs{
-		// 			AssumeRolePolicy: pulumi.String(`{
+		// taskExecRole, err := iam.NewRole(ctx, "task-exec-role", &iam.RoleArgs{
+		// 	AssumeRolePolicy: pulumi.String(`{
 		//     "Version": "2008-10-17",
 		//     "Statement": [{
 		//         "Sid": "",
@@ -65,17 +65,17 @@ func main() {
 		//         "Action": "sts:AssumeRole"
 		//     }]
 		// }`),
-		// 		})
-		// 		if err != nil {
-		// 			return err
-		// 		}
-		// 		_, err = iam.NewRolePolicyAttachment(ctx, "task-exec-policy", &iam.RolePolicyAttachmentArgs{
-		// 			Role:      taskExecRole.Name,
-		// 			PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"),
-		// 		})
-		// 		if err != nil {
-		// 			return err
-		// 		}
+		// })
+		// if err != nil {
+		// 	return err
+		// }
+		// _, err = iam.NewRolePolicyAttachment(ctx, "task-exec-policy", &iam.RolePolicyAttachmentArgs{
+		// 	Role:      taskExecRole.Name,
+		// 	PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"),
+		// })
+		// if err != nil {
+		// 	return err
+		// }
 
 		// Create a load balancer to listen for HTTP traffic on port 80.
 		webLb, err := elb.NewLoadBalancer(ctx, "web-lb", &elb.LoadBalancerArgs{
@@ -161,8 +161,8 @@ func main() {
 		}
 		op, _ := containerDef()
 
-		// Spin up a load balanced service running NGINX.
-		appTask, err := ecs.NewTaskDefinition(ctx, "hello-web", &ecs.TaskDefinitionArgs{
+		// Spin up a load balanced service running NGINX.arn:aws:iam::872232775305:role/ecsTaskExecutionRole
+		appTask, err := ecs.NewTaskDefinition(ctx, "voter", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String("fargate-task-definition"),
 			Cpu:                     pulumi.String("256"),
 			Memory:                  pulumi.String("512"),
@@ -187,7 +187,7 @@ func main() {
 			LoadBalancers: ecs.ServiceLoadBalancerArray{
 				ecs.ServiceLoadBalancerArgs{
 					TargetGroupArn: webTg.Arn,
-					ContainerName:  pulumi.String("hello-web"),
+					ContainerName:  pulumi.String("voter"),
 					ContainerPort:  pulumi.Int(80),
 				},
 			},
