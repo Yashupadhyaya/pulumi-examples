@@ -36,8 +36,8 @@ func main() {
 			Ingress: ec2.SecurityGroupIngressArray{
 				ec2.SecurityGroupIngressArgs{
 					Protocol:   pulumi.String("tcp"),
-					FromPort:   pulumi.Int(80),
-					ToPort:     pulumi.Int(80),
+					FromPort:   pulumi.Int(90),
+					ToPort:     pulumi.Int(90),
 					CidrBlocks: pulumi.StringArray{pulumi.String("0.0.0.0/0")},
 				},
 			},
@@ -63,7 +63,7 @@ func main() {
 			return err
 		}
 		webTg, err := elb.NewTargetGroup(ctx, "web-tg", &elb.TargetGroupArgs{
-			Port:       pulumi.Int(80),
+			Port:       pulumi.Int(90),
 			Protocol:   pulumi.String("HTTP"),
 			TargetType: pulumi.String("ip"),
 			VpcId:      pulumi.String(vpc.Id),
@@ -73,7 +73,7 @@ func main() {
 		}
 		webListener, err := elb.NewListener(ctx, "web-listener", &elb.ListenerArgs{
 			LoadBalancerArn: webLb.Arn,
-			Port:            pulumi.Int(80),
+			Port:            pulumi.Int(90),
 			Protocol:        pulumi.String("HTTP"),
 			DefaultActions: elb.ListenerDefaultActionArray{
 				elb.ListenerDefaultActionArgs{
@@ -91,8 +91,8 @@ func main() {
 				"name": "my-app",
 				"image":"mgdevstack/hello:web",
 				"portMappings": [{
-					"containerPort": 80,
-					"hostPort": 80,
+					"containerPort":90,
+					"hostPort": 90,
 					"protocol": "tcp"
 				}]
 			}]`
@@ -127,7 +127,7 @@ func main() {
 				ecs.ServiceLoadBalancerArgs{
 					TargetGroupArn: webTg.Arn,
 					ContainerName:  pulumi.String("hello-web"),
-					ContainerPort:  pulumi.Int(80),
+					ContainerPort:  pulumi.Int(90),
 				},
 			},
 		}, pulumi.DependsOn([]pulumi.Resource{webListener}))
