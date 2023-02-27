@@ -47,7 +47,7 @@ func main() {
 		}
 
 		// Create an ECS cluster to run a container-based service.
-		cluster, err := ecs.NewCluster(ctx, "app-cluster", nil)
+		cluster, err := ecs.NewCluster(ctx, "roost-ecs-cluster", nil)
 		if err != nil {
 			return err
 		}
@@ -88,8 +88,8 @@ func main() {
 
 		containerDef := func() (string, error) {
 			fmtstr := `[{
-				"name": "my-app",
-				"image":"mgdevstack/hello:web",
+				"name": "hello-web",
+				"image":"zbio/voter:latest",
 				"portMappings": [{
 					"containerPort":90,
 					"hostPort": 90,
@@ -102,7 +102,7 @@ func main() {
 
 		// Spin up a load balanced service running NGINX.
 		appTask, err := ecs.NewTaskDefinition(ctx, "hello-web", &ecs.TaskDefinitionArgs{
-			Family:                  pulumi.String("fargate-task-definition"),
+			Family:                  pulumi.String("hello-web"),
 			Cpu:                     pulumi.String("256"),
 			Memory:                  pulumi.String("512"),
 			NetworkMode:             pulumi.String("awsvpc"),
@@ -137,7 +137,6 @@ func main() {
 		return nil
 	})
 }
-
 func toPulumiStringArray(a []string) pulumi.StringArrayInput {
 	var res []pulumi.StringInput
 	for _, s := range a {
